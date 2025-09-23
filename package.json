@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A demo project representing an e_commerce made with node.js express and mongoose",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
