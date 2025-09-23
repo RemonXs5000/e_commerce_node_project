@@ -16,8 +16,9 @@ export const getAllProducts = async (req, res) => {
 };
 
 // get product by name / seller name TODO
-const getProductByName = async (req, res) => {
+export const getProductByName = async (req, res) => {
   try {
+    // getting the querystring provided by user
     const { name } = req.query;
 
     if (!name) {
@@ -25,11 +26,12 @@ const getProductByName = async (req, res) => {
         .status(400)
         .json({ status: "failed", message: "Please provide a product name" });
     }
-
-    // لو عايز تجيب أكتر من منتج متشابه في الاسم
+    // search for the products the have the same regex
     const products = await productModel.find({
       name: { $regex: name, $options: "i" }, // i = case-insensitive
     });
+
+    console.log(products);
 
     if (!products || products.length === 0) {
       return res
@@ -38,6 +40,23 @@ const getProductByName = async (req, res) => {
     }
 
     res.status(200).json({ status: "success", data: { products } });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};
+
+// add new Product (restricted to user with rule seller)
+export const addNewProduct = async (req, res) => {
+  try {
+    const newProduct = req.body;
+    // check if user ddn't provide product details
+    if (!newProduct || Object.keys(newProduct).length === 0) {
+      return res
+        .status(400)
+        .json({ status: "failed", message: "product details not provided" });
+    }
+    const product = await productModel.create(newProduct);
+    res.status(201).json({ status: "success", data: { product } });
   } catch (err) {
     res.status(500).json({ status: "error", message: err.message });
   }
