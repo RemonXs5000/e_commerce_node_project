@@ -1,8 +1,7 @@
 import express from "express";
+import { getAllProducts } from "../controllers/productsControllers.js";
 
-const router = express.Router();
+export const router = express.Router();
 
 // endpoint to get all products (resigtered & unristered)
-router.get("/", (req, res) => {
-  res.status(200).json({ status: "success", data: "products" });
-});
+router.get("/", getAllProducts);

@@ -9,6 +9,7 @@ const productSchema = new Schema(
       trim: true,
       minlength: [5, "product name must be at least 5 characters"],
       maxlength: [40, "product name must be at most 40 characters"],
+      unique: true,
     },
     disc: {
       type: String,
@@ -21,6 +22,10 @@ const productSchema = new Schema(
       required: [true, "image URL is required"],
       trim: true,
     },
+    price: {
+      type: Number,
+      required: true,
+    },
     sellerId: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -30,4 +35,4 @@ const productSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+export const productModel = mongoose.model("Product", productSchema);
