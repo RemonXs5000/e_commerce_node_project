@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new Schema({
   name: {
@@ -20,7 +21,6 @@ const userSchema = new Schema({
     required: [true, "Password is required"],
     trim: true,
     minlength: [5, "Password must be at least 5 characters"],
-    maxlength: [25, "Password must be at most 25 characters"],
   },
   role: {
     type: String,
@@ -30,6 +30,18 @@ const userSchema = new Schema({
       message: "Role must be either: customer, seller, or admin",
     },
   },
+});
+
+// hashing the userPassword before saving to DB
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  // generating a salt and hashing the provided password
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+
+  next();
 });
 
 export const userModel = mongoose.model("User", userSchema);
