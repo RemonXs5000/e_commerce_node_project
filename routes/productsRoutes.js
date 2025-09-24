@@ -3,8 +3,11 @@ import {
   getAllProducts,
   getProductByName,
   addNewProduct,
+  getMyProducts,
+  deleteProduct,
+  // updateProduct,
 } from "../controllers/productsControllers.js";
-import { authentication } from "../middlewares/authentication.js";
+import { authentication, authorized } from "../middlewares/authentication.js";
 
 export const router = express.Router();
 
@@ -13,5 +16,9 @@ router.get("/", getAllProducts);
 router.use(authentication);
 
 // endpoint to get all products (resigtered user only)
-router.post("/", addNewProduct);
-router.get("/search", getProductByName);
+router.get("/myProducts", authorized("seller"), getMyProducts);
+router.post("/myProducts", authorized("seller"), addNewProduct);
+router.delete("/myProducts/:id", authorized("seller"), deleteProduct);
+// router.patch("/myProducts", authorized("seller"), updateProduct);
+
+router.get("/search", authorized("customer,seller,admin"), getProductByName);

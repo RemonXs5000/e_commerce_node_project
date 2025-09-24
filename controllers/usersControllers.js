@@ -58,7 +58,7 @@ export const loginUser = async (req, res) => {
     console.log(process.env.PRIVATE_KEY);
     const token = jwt.sign(
       {
-        role: userData._id,
+        _id: userData._id,
         name: userData.name,
         email: userData.email,
         role: userData.role,
@@ -69,5 +69,58 @@ export const loginUser = async (req, res) => {
     return res.status(200).json({ status: "success", data: { token } });
   } catch (err) {
     return res.status(500).json({ status: "failed", message: err.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email } = req.currentuser;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword) {
+      return res.status(400).json({
+        status: "failed",
+        message: "Old password isn't provided",
+      });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({
+        status: "failed",
+        message: "New password isn't provided",
+      });
+    }
+
+    // getting the currently saved password from DB
+    const { password: currentSavedPassword } = await userModel.findOne({
+      email,
+    });
+
+    const isValidPassword = await bcrypt.compare(
+      oldPassword,
+      currentSavedPassword
+    );
+    if (!isValidPassword) {
+      return res.status(400).json({
+        status: "failed",
+        message: "Invalid password, check your credentials",
+      });
+    }
+
+    // hashing the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await userModel.updateOne({ email }, { password: hashedPassword });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "failed",
+      message: "Something went wrong while resetting password",
+    });
   }
 };

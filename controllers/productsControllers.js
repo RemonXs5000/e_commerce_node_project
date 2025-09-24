@@ -48,7 +48,8 @@ export const getProductByName = async (req, res) => {
 // add new Product (restricted to user with rule seller)
 export const addNewProduct = async (req, res) => {
   try {
-    const newProduct = req.body;
+    const sellerId = { sellerId: req.currentuser._id };
+    const newProduct = Object.assign(req.body, sellerId);
     // check if user ddn't provide product details
     if (!newProduct || Object.keys(newProduct).length === 0) {
       return res
@@ -59,5 +60,45 @@ export const addNewProduct = async (req, res) => {
     res.status(201).json({ status: "success", data: { product } });
   } catch (err) {
     res.status(500).json({ status: "error", message: err.message });
+  }
+};
+
+export const getMyProducts = async (req, res) => {
+  try {
+    const sellerId = req.currentuser._id;
+    const mrProducts = await productModel.find({ sellerId });
+    res.status(201).json({ status: "success", data: { mrProducts } });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const sellerId = req.currentuser._id;
+    const productId = req.body.id;
+
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        status: "failed",
+        message: "Product not found",
+      });
+    }
+
+    // check ownership
+    if (product.sellerId.toString() !== sellerId.toString()) {
+      return res.status(403).json({
+        status: "failed",
+        message: "Forbidden Action",
+      });
+    }
+
+    await product.deleteOne();
+
+    res.status(204).json({ status: "success", data: null });
+  } catch (err) {
+    res.status(500).json({ status: "failed", message: err.message });
   }
 };
