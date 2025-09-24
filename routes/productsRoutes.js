@@ -5,7 +5,7 @@ import {
   addNewProduct,
   getMyProducts,
   deleteProduct,
-  // updateProduct,
+  updateProduct,
 } from "../controllers/productsControllers.js";
 import { authentication, authorized } from "../middlewares/authentication.js";
 

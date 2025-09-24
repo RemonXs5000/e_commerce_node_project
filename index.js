@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import { router as productRouter } from "./routes/productsRoutes.js";
 import { router as userRouter } from "./routes/usersRoutes.js";
+import { router as cartRouter } from "./routes/cartRoutes.js";
+
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -16,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/cart", cartRouter);
 app.use((req, res) => {
   res
     .status(500)

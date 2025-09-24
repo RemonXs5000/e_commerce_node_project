@@ -21,7 +21,7 @@ export const getProductByName = async (req, res) => {
     // getting the querystring provided by user
     const { name } = req.query;
 
-    if (!name) {
+    if (!name || !seller) {
       return res
         .status(400)
         .json({ status: "failed", message: "Please provide a product name" });
@@ -115,7 +115,6 @@ export const updateProduct = async (req, res) => {
     const productId = req.params.id;
     const updates = req.body;
 
-    // دور على المنتج وتأكد إنه بتاع نفس الـ seller
     const product = await productModel.findOneAndUpdate(
       { _id: productId, sellerId },
       updates,
