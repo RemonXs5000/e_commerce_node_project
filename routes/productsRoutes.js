@@ -19,6 +19,6 @@ router.use(authentication);
 router.get("/myProducts", authorized("seller"), getMyProducts);
 router.post("/myProducts", authorized("seller"), addNewProduct);
 router.delete("/myProducts/:id", authorized("seller"), deleteProduct);
-// router.patch("/myProducts", authorized("seller"), updateProduct);
+router.patch("/myProducts/:id", authorized("seller"), updateProduct);
 
 router.get("/search", authorized("customer,seller,admin"), getProductByName);

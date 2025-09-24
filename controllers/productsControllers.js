@@ -31,8 +31,6 @@ export const getProductByName = async (req, res) => {
       name: { $regex: name, $options: "i" }, // i = case-insensitive
     });
 
-    console.log(products);
-
     if (!products || products.length === 0) {
       return res
         .status(404)
@@ -62,7 +60,7 @@ export const addNewProduct = async (req, res) => {
     res.status(500).json({ status: "error", message: err.message });
   }
 };
-
+// get seller 's Products (restricted to user with rule seller)
 export const getMyProducts = async (req, res) => {
   try {
     const sellerId = req.currentuser._id;
@@ -73,10 +71,18 @@ export const getMyProducts = async (req, res) => {
   }
 };
 
+// delete seller 's Products (restricted to user with rule seller)
 export const deleteProduct = async (req, res) => {
   try {
     const sellerId = req.currentuser._id;
-    const productId = req.body.id;
+    const productId = req.params.id;
+
+    if (!productId) {
+      return res.status(404).json({
+        status: "failed",
+        message: "Product id not provided",
+      });
+    }
 
     const product = await productModel.findById(productId);
 
@@ -100,5 +106,37 @@ export const deleteProduct = async (req, res) => {
     res.status(204).json({ status: "success", data: null });
   } catch (err) {
     res.status(500).json({ status: "failed", message: err.message });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const sellerId = req.currentUser._id;
+    const productId = req.params.id;
+    const updates = req.body;
+
+    // دور على المنتج وتأكد إنه بتاع نفس الـ seller
+    const product = await productModel.findOneAndUpdate(
+      { _id: productId, sellerId },
+      updates,
+      { new: true, runValidators: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        status: "failed",
+        message: "Product not found or not owned by you",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: product,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "failed",
+      message: err.message,
+    });
   }
 };

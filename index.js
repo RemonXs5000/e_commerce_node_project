@@ -16,7 +16,11 @@ app.use(express.json());
 
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/users", userRouter);
-
+app.use((req, res) => {
+  res
+    .status(500)
+    .json({ status: "Failed", message: "Couldn't handle this Route" });
+});
 app.listen(3000, "127.0.0.1", () => {
   console.log("Server up and Running");
 });
